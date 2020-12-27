@@ -91,10 +91,11 @@ data class LobbyGame(
 data class OngoingGame (
     override val id: GameId,
     override val players: List<PlayerId>,
-    override val recordedEvents: List<GameEvent>,
+    override val recordedEvents: List<GameEvent> = emptyList(),
     val ongoingRound: NumericValue = NumericValue.ZERO
 ) : Game() {
-    private val deck = Deck.initialize()
+    val deck = Deck.initialize()
+
     private val numberOfRounds = NumericValue(deck.size.value / players.size)
 
     init {
@@ -115,9 +116,7 @@ data class OngoingGame (
 
         val round = Round.createNewRound(
             game = ongoingGame,
-            players = ongoingGame.players,
-            initialPlayer = ongoingGame.nextStartingPlayer(),
-            deck = deck
+            initialPlayer = ongoingGame.nextStartingPlayer()
         )
 
         return ongoingGame.copy(
@@ -149,7 +148,7 @@ data class OngoingGame (
 data class EndedGame(
     override val id: GameId,
     override val players: List<PlayerId>,
-    override val recordedEvents: List<GameEvent>,
+    override val recordedEvents: List<GameEvent> = emptyList(),
     val ongoingRound: NumericValue
 ) : Game() {
     companion object {

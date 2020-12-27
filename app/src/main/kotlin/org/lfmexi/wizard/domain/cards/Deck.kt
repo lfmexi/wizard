@@ -10,17 +10,30 @@ data class Deck internal constructor(
     fun drawCards(numberOfCards: NumericValue): Pair<Deck, List<Card>> {
         require(numberOfCards.value <= cards.size)
 
-        val drawnCards = generateSequence { cards.random() }
+        val cardsWithRemaining = generateSequence({
+            cards.subtractCardsFromPile()
+        }) {
+            (_, currentRemaining) ->
+            currentRemaining.subtractCardsFromPile()
+        }
             .take(numberOfCards.value)
             .toList()
 
-        val newDeck = this.copy(cards = cards - drawnCards)
+        val (_, remainingCards) = cardsWithRemaining.last()
+        val drawnCards = cardsWithRemaining.map { (card, _) -> card }
 
-        return newDeck to drawnCards
+        val newDeck = this.copy(cards = remainingCards)
+
+        return newDeck to drawnCards.toList()
     }
 
     fun drawTopCard(): Card? {
         return cards.firstOrNull()
+    }
+
+    private fun List<Card>.subtractCardsFromPile(): Pair<Card, List<Card>> {
+        val card = this.random()
+        return card to this - card
     }
 
     companion object {

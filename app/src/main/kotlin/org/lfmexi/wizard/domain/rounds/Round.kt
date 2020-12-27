@@ -29,15 +29,13 @@ sealed class Round {
     companion object {
         fun createNewRound(
             game: OngoingGame,
-            initialPlayer: PlayerId,
-            players: List<PlayerId>,
-            deck: Deck
+            initialPlayer: PlayerId
         ): Round {
             return DealingPhaseRound.createNewRound(
                 game = game,
                 initialPlayer = initialPlayer,
-                players = players,
-                deck = deck
+                players = game.players,
+                deck = game.deck
             )
         }
     }
@@ -58,7 +56,11 @@ data class DealingPhaseRound(
      * Once a [Round] is created, a deal phase starts.
      * @return a [Pair] of [Round] and [List] of [Hand]
      */
-    fun deal(): Pair<Round, List<Hand>> {
+    fun deal(dealer: PlayerId): Round {
+        if (dealer != initialPlayer) {
+            throw NotInTurnException(dealer)
+        }
+
         val cardsWithDeck: List<Pair<Deck, List<Card>>> = generateSequence({ deck.drawCards(roundNumber) }) {
             (deck, _) -> deck.drawCards(roundNumber)
         }
@@ -74,8 +76,7 @@ data class DealingPhaseRound(
 
         val activeCard = lastDeck.drawTopCard()
 
-        val nextRound = DeclaringPhaseRound.from(this, activeCard?.group)
-        return nextRound to hands
+        return DeclarationPhaseRound.from(this, hands, activeCard?.group)
     }
 
     internal companion object {
@@ -116,7 +117,7 @@ sealed class PlayerTurnPhaseRound : Round() {
     }
 }
 
-data class DeclaringPhaseRound(
+data class DeclarationPhaseRound(
     override val id: RoundId,
     override val gameId: GameId,
     override val roundNumber: NumericValue,
@@ -150,7 +151,7 @@ data class DeclaringPhaseRound(
             PlayingPhaseRound.from(declaredRound)
         } else {
             declaredRound.copy(
-                recordedEvents = declaredRound.recordedEvents + DeclarationPhaseReadyEvent(declaredRound)
+                recordedEvents = declaredRound.recordedEvents + DeclarationDoneEvent(declaredRound)
             )
         }
     }
@@ -174,9 +175,13 @@ data class DeclaringPhaseRound(
     }
 
     internal companion object {
-        fun from(round: Round, referenceCardGroup: CardGroup?): DeclaringPhaseRound {
+        fun from(
+            round: Round,
+            hands: List<Hand>,
+            referenceCardGroup: CardGroup?
+        ): DeclarationPhaseRound {
             return with(round) {
-                val nextRound = DeclaringPhaseRound(
+                val nextRound = DeclarationPhaseRound(
                     id = id,
                     gameId = gameId,
                     roundNumber = roundNumber,
@@ -187,7 +192,9 @@ data class DeclaringPhaseRound(
                     currentPlayer = initialPlayer,
                     referenceCardGroup = referenceCardGroup
                 )
-                nextRound.copy(recordedEvents = nextRound.recordedEvents + DeclarationPhaseReadyEvent(nextRound))
+                nextRound.copy(
+                    recordedEvents = nextRound.recordedEvents + DeclarationPhaseReadyEvent(nextRound, hands)
+                )
             }
         }
     }
@@ -329,7 +336,7 @@ data class PlayingPhaseRound(
     }
 
     internal companion object {
-        fun from(round: DeclaringPhaseRound): PlayingPhaseRound {
+        fun from(round: DeclarationPhaseRound): PlayingPhaseRound {
             return with(round) {
                 val nextRound = PlayingPhaseRound(
                     id = id,
