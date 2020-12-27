@@ -161,7 +161,7 @@ data class DeclarationPhaseRound(
             throw NotInTurnException(playerId)
         }
 
-        if (isLastPlayer(playerId)) {
+        if (isLastPlayer()) {
             val sumOfExpected = playerScoreBoard.map { (_, score) -> score.expected }
                 .sumOf { it.value }
                 .let { NumericValue(it) } + value
@@ -170,8 +170,8 @@ data class DeclarationPhaseRound(
         }
     }
 
-    private fun isLastPlayer(playerId: PlayerId): Boolean {
-        return playerId == players.last()
+    private fun isLastPlayer(): Boolean {
+        return nextPlayer() == initialPlayer
     }
 
     internal companion object {

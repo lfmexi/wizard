@@ -5,6 +5,7 @@ import org.lfmexi.wizard.domain.games.LobbyGame
 import org.lfmexi.wizard.domain.games.OngoingGame
 import org.lfmexi.wizard.domain.players.PlayerId
 import org.lfmexi.wizard.domain.rounds.DealingPhaseRound
+import org.lfmexi.wizard.domain.rounds.DeclarationPhaseRound
 import org.lfmexi.wizard.domain.rounds.RoundId
 import org.lfmexi.wizard.domain.scoring.RoundScore
 
@@ -32,5 +33,16 @@ object Fixtures {
         initialPlayer = ONGOING_GAME.players.first(),
         players = ONGOING_GAME.players,
         playerScoreBoard = ONGOING_GAME.players.map { it to RoundScore.ZERO_SCORE }.toMap(),
+    )
+
+    val DECLARATION_PHASE_ROUND = DeclarationPhaseRound(
+        id = RoundId.generate(),
+        gameId = ONGOING_GAME.id,
+        roundNumber = ONGOING_GAME.ongoingRound,
+        players = ONGOING_GAME.players,
+        playerScoreBoard = ONGOING_GAME.players.map { it to RoundScore.ZERO_SCORE }.toMap(),
+        initialPlayer = ONGOING_GAME.players.first(),
+        currentPlayer = ONGOING_GAME.players.first(),
+        referenceCardGroup = null
     )
 }

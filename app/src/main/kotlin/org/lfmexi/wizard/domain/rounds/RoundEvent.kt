@@ -19,13 +19,13 @@ data class DeclarationDoneEvent(
     override val round: DeclarationPhaseRound
 ): RoundEvent()
 
+data class PlayingPhaseReadyEvent(
+    override val round: PlayingPhaseRound
+): RoundEvent()
+
 data class MoveInRoundRegisteredEvent(
     override val round: PlayingPhaseRound,
     val hand: Hand
-): RoundEvent()
-
-data class PlayingPhaseReadyEvent(
-    override val round: PlayingPhaseRound
 ): RoundEvent()
 
 data class RoundEndedEvent(
