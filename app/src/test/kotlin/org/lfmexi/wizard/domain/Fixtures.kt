@@ -6,8 +6,10 @@ import org.lfmexi.wizard.domain.games.OngoingGame
 import org.lfmexi.wizard.domain.players.PlayerId
 import org.lfmexi.wizard.domain.rounds.DealingPhaseRound
 import org.lfmexi.wizard.domain.rounds.DeclarationPhaseRound
+import org.lfmexi.wizard.domain.rounds.PlayingPhaseRound
 import org.lfmexi.wizard.domain.rounds.RoundId
 import org.lfmexi.wizard.domain.scoring.RoundScore
+import org.lfmexi.wizard.domain.values.NumericValue
 
 object Fixtures {
     val PLAYER_ID_1 = PlayerId.generate()
@@ -30,7 +32,7 @@ object Fixtures {
         gameId = ONGOING_GAME.id,
         roundNumber = ONGOING_GAME.ongoingRound,
         deck = ONGOING_GAME.deck,
-        initialPlayer = ONGOING_GAME.players.first(),
+        dealingPlayer = ONGOING_GAME.players.first(),
         players = ONGOING_GAME.players,
         playerScoreBoard = ONGOING_GAME.players.map { it to RoundScore.ZERO_SCORE }.toMap(),
     )
@@ -41,8 +43,24 @@ object Fixtures {
         roundNumber = ONGOING_GAME.ongoingRound,
         players = ONGOING_GAME.players,
         playerScoreBoard = ONGOING_GAME.players.map { it to RoundScore.ZERO_SCORE }.toMap(),
-        initialPlayer = ONGOING_GAME.players.first(),
-        currentPlayer = ONGOING_GAME.players.first(),
+        dealingPlayer = ONGOING_GAME.players.first(),
+        initialPlayer = ONGOING_GAME.players[1],
+        currentPlayer = ONGOING_GAME.players[1],
         referenceCardGroup = null
+    )
+
+    val PLAYING_PHASE_ROUND = PlayingPhaseRound(
+        id = RoundId.generate(),
+        gameId = ONGOING_GAME.id,
+        roundNumber = ONGOING_GAME.ongoingRound,
+        players = ONGOING_GAME.players,
+        playerScoreBoard = ONGOING_GAME.players.map { it to RoundScore.ZERO_SCORE }.toMap(),
+        dealingPlayer = ONGOING_GAME.players.first(),
+        initialPlayer = ONGOING_GAME.players[1],
+        currentPlayer = ONGOING_GAME.players[1],
+        referenceCardGroup = null,
+        currentWinningPlayer = ONGOING_GAME.players[1],
+        currentWinningCard = null,
+        triumphsPlayed = NumericValue.ZERO
     )
 }

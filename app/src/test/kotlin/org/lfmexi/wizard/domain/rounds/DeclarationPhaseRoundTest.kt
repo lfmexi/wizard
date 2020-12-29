@@ -28,16 +28,16 @@ internal class DeclarationPhaseRoundTest {
 
     @Test
     fun `should not create a declaration when the declaration matches with the number of triumphs`() {
-        val playerId = PLAYER_ID_3
+        val playerId = PLAYER_ID_1
 
         val round = DECLARATION_PHASE_ROUND.copy(
             roundNumber = NumericValue(2),
-            initialPlayer = PLAYER_ID_1,
+            dealingPlayer = PLAYER_ID_1,
             currentPlayer = playerId,
             playerScoreBoard = mapOf(
-                PLAYER_ID_1 to RoundScore(NumericValue.ONE, NumericValue.ZERO),
+                PLAYER_ID_1 to RoundScore(NumericValue.ZERO, NumericValue.ZERO),
                 PLAYER_ID_2 to RoundScore(NumericValue.ONE, NumericValue.ZERO),
-                PLAYER_ID_3 to RoundScore(NumericValue.ZERO, NumericValue.ZERO)
+                PLAYER_ID_3 to RoundScore(NumericValue.ONE, NumericValue.ZERO)
             )
         )
 
@@ -53,7 +53,7 @@ internal class DeclarationPhaseRoundTest {
 
         val round = DECLARATION_PHASE_ROUND.copy(
             roundNumber = NumericValue(2),
-            initialPlayer = PLAYER_ID_1,
+            dealingPlayer = PLAYER_ID_1,
             currentPlayer = playerId,
             playerScoreBoard = mapOf(
                 PLAYER_ID_1 to RoundScore(NumericValue.ONE, NumericValue.ZERO),
@@ -92,6 +92,7 @@ internal class DeclarationPhaseRoundTest {
 
         val round = DECLARATION_PHASE_ROUND.copy(
             roundNumber = NumericValue(4),
+            dealingPlayer = PLAYER_ID_2,
             initialPlayer = PLAYER_ID_3,
             currentPlayer = playerId,
             playerScoreBoard = mapOf(
@@ -112,6 +113,7 @@ internal class DeclarationPhaseRoundTest {
                 DECLARATION_PHASE_ROUND.copy(
                     roundNumber = NumericValue(4),
                     currentPlayer = PLAYER_ID_2,
+                    dealingPlayer = PLAYER_ID_2,
                     initialPlayer = PLAYER_ID_3,
                     playerScoreBoard = mapOf(
                         PLAYER_ID_1 to RoundScore(NumericValue.ONE, NumericValue.ZERO),
@@ -128,16 +130,17 @@ internal class DeclarationPhaseRoundTest {
     @Test
     fun `should continue with the next phase when the last player had its declaration`() {
         // given
-        val playerId = PLAYER_ID_3
+        val playerId = PLAYER_ID_1
 
         val round = DECLARATION_PHASE_ROUND.copy(
             roundNumber = NumericValue(2),
-            initialPlayer = PLAYER_ID_1,
+            dealingPlayer = PLAYER_ID_1,
+            initialPlayer = PLAYER_ID_2,
             currentPlayer = playerId,
             playerScoreBoard = mapOf(
-                PLAYER_ID_1 to RoundScore(NumericValue.ONE, NumericValue.ZERO),
+                PLAYER_ID_1 to RoundScore(NumericValue.ZERO, NumericValue.ZERO),
                 PLAYER_ID_2 to RoundScore(NumericValue.ONE, NumericValue.ZERO),
-                PLAYER_ID_3 to RoundScore(NumericValue.ZERO, NumericValue.ZERO)
+                PLAYER_ID_3 to RoundScore(NumericValue.ONE, NumericValue.ZERO)
             )
         )
 
@@ -150,8 +153,9 @@ internal class DeclarationPhaseRoundTest {
             .isEqualTo(
                 PlayingPhaseRound(
                     id = round.id,
-                    currentPlayer = PLAYER_ID_1,
+                    currentPlayer = PLAYER_ID_2,
                     gameId = round.gameId,
+                    dealingPlayer = round.dealingPlayer,
                     initialPlayer = round.initialPlayer,
                     players = round.players,
                     roundNumber = round.roundNumber,

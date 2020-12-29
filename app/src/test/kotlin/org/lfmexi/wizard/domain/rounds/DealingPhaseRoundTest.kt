@@ -18,7 +18,7 @@ internal class DealingPhaseRoundTest {
         val initialPlayerId = PLAYER_ID_3
         val dealer = PLAYER_ID_1
         val dealingPhaseRound = DEALING_PHASE_ROUND.copy(
-            initialPlayer = initialPlayerId
+            dealingPlayer = initialPlayerId
         )
 
         assertThrows<NotInTurnException> {
@@ -35,7 +35,7 @@ internal class DealingPhaseRoundTest {
         expectedAmountOfCards: Int,
         shouldHaveReferenceCardGroup: Boolean
     ) {
-        val newPhaseRound = round.deal(round.initialPlayer) as DeclarationPhaseRound
+        val newPhaseRound = round.deal(round.dealingPlayer) as DeclarationPhaseRound
 
         assertThat(newPhaseRound.referenceCardGroup != null).isEqualTo(shouldHaveReferenceCardGroup)
         assertThat(newPhaseRound.recordedEvents).hasSize(1)

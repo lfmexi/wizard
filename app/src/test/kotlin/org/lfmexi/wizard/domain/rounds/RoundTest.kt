@@ -13,7 +13,7 @@ internal class RoundTest {
 
         val round = Round.createNewRound(
             game = game,
-            initialPlayer = initialPlayer
+            dealingPlayer = initialPlayer
         )
 
         assertThat(round).isInstanceOf(DealingPhaseRound::class.java)
@@ -26,7 +26,7 @@ internal class RoundTest {
                     gameId = game.id,
                     roundNumber = game.ongoingRound,
                     deck = game.deck,
-                    initialPlayer = initialPlayer,
+                    dealingPlayer = initialPlayer,
                     players = game.players,
                     playerScoreBoard = game.players.map { it to RoundScore.ZERO_SCORE }.toMap(),
                 )

@@ -23,17 +23,17 @@ sealed class Round {
     abstract val roundNumber: NumericValue
     abstract val players: List<PlayerId>
     abstract val playerScoreBoard: Map<PlayerId, RoundScore>
-    abstract val initialPlayer: PlayerId
+    abstract val dealingPlayer: PlayerId
     abstract val recordedEvents: List<RoundEvent>
 
     companion object {
         fun createNewRound(
             game: OngoingGame,
-            initialPlayer: PlayerId
+            dealingPlayer: PlayerId
         ): Round {
             return DealingPhaseRound.createNewRound(
                 game = game,
-                initialPlayer = initialPlayer,
+                dealingPlayer = dealingPlayer,
                 players = game.players,
                 deck = game.deck
             )
@@ -47,7 +47,7 @@ data class DealingPhaseRound(
     override val roundNumber: NumericValue,
     override val players: List<PlayerId>,
     override val playerScoreBoard: Map<PlayerId, RoundScore>,
-    override val initialPlayer: PlayerId,
+    override val dealingPlayer: PlayerId,
     override val recordedEvents: List<RoundEvent> = emptyList(),
     private val deck: Deck
 ) : Round() {
@@ -57,7 +57,7 @@ data class DealingPhaseRound(
      * @return a [Pair] of [Round] and [List] of [Hand]
      */
     fun deal(dealer: PlayerId): Round {
-        if (dealer != initialPlayer) {
+        if (dealer != dealingPlayer) {
             throw NotInTurnException(dealer)
         }
 
@@ -76,13 +76,28 @@ data class DealingPhaseRound(
 
         val activeCard = lastDeck.drawTopCard()
 
-        return DeclarationPhaseRound.from(this, hands, activeCard?.group)
+        return DeclarationPhaseRound.from(
+            round = this,
+            initialPlayer = nextToDealer(),
+            hands = hands,
+            referenceCardGroup = activeCard?.group
+        )
+    }
+
+    private fun nextToDealer(): PlayerId {
+        val nextPlayerIndex = players.indexOf(dealingPlayer) + 1
+
+        return if (nextPlayerIndex >= players.size) {
+            players.first()
+        } else {
+            players[nextPlayerIndex]
+        }
     }
 
     internal companion object {
         fun createNewRound(
             game: OngoingGame,
-            initialPlayer: PlayerId,
+            dealingPlayer: PlayerId,
             players: List<PlayerId>,
             deck: Deck
         ): Round {
@@ -92,7 +107,7 @@ data class DealingPhaseRound(
                 roundNumber = game.ongoingRound,
                 players = players,
                 playerScoreBoard = players.map { it to RoundScore.ZERO_SCORE }.toMap(),
-                initialPlayer = initialPlayer,
+                dealingPlayer = dealingPlayer,
                 deck = deck
             )
 
@@ -104,6 +119,7 @@ data class DealingPhaseRound(
 }
 
 sealed class PlayerTurnPhaseRound : Round() {
+    abstract val initialPlayer: PlayerId
     abstract val currentPlayer: PlayerId
 
     protected fun nextPlayer(): PlayerId {
@@ -123,8 +139,9 @@ data class DeclarationPhaseRound(
     override val roundNumber: NumericValue,
     override val players: List<PlayerId>,
     override val playerScoreBoard: Map<PlayerId, RoundScore>,
-    override val initialPlayer: PlayerId,
+    override val dealingPlayer: PlayerId,
     override val recordedEvents: List<RoundEvent> = emptyList(),
+    override val initialPlayer: PlayerId,
     override val currentPlayer: PlayerId,
     val referenceCardGroup: CardGroup?
 ): PlayerTurnPhaseRound() {
@@ -177,6 +194,7 @@ data class DeclarationPhaseRound(
     internal companion object {
         fun from(
             round: Round,
+            initialPlayer: PlayerId,
             hands: List<Hand>,
             referenceCardGroup: CardGroup?
         ): DeclarationPhaseRound {
@@ -187,11 +205,13 @@ data class DeclarationPhaseRound(
                     roundNumber = roundNumber,
                     players = players,
                     playerScoreBoard = playerScoreBoard,
-                    initialPlayer = initialPlayer,
+                    dealingPlayer = dealingPlayer,
                     recordedEvents = recordedEvents,
+                    initialPlayer = initialPlayer,
                     currentPlayer = initialPlayer,
                     referenceCardGroup = referenceCardGroup
                 )
+
                 nextRound.copy(
                     recordedEvents = nextRound.recordedEvents + DeclarationPhaseReadyEvent(nextRound, hands)
                 )
@@ -206,8 +226,9 @@ data class PlayingPhaseRound(
     override val roundNumber: NumericValue,
     override val players: List<PlayerId>,
     override val playerScoreBoard: Map<PlayerId, RoundScore>,
-    override val initialPlayer: PlayerId,
+    override val dealingPlayer: PlayerId,
     override val recordedEvents: List<RoundEvent> = emptyList(),
+    override val initialPlayer: PlayerId,
     override val currentPlayer: PlayerId,
     val triumphsPlayed: NumericValue,
     val currentWinningPlayer: PlayerId,
@@ -258,7 +279,7 @@ data class PlayingPhaseRound(
     private fun movePhaseForward(): Round {
         val nextPlayerId = nextPlayer()
 
-        return if (nextPlayerId == initialPlayer) {
+        return if (nextPlayerId == dealingPlayer) {
             // summarize and give the triumph to the winning player
             updateForEndOfTriumph(nextPlayerId)
         } else {
@@ -303,6 +324,10 @@ data class PlayingPhaseRound(
     }
 
     private fun validatePlayingPhase(hand: Hand, card: Card) {
+        if (hand.playerId != currentPlayer) {
+            throw NotInTurnException(hand.playerId)
+        }
+
         if (!hand.cards.contains(card)) {
             throw CardNotInHandException(hand, card)
         }
@@ -344,9 +369,10 @@ data class PlayingPhaseRound(
                     roundNumber = roundNumber,
                     players = players,
                     playerScoreBoard = playerScoreBoard,
-                    initialPlayer = initialPlayer,
+                    dealingPlayer = dealingPlayer,
                     recordedEvents = recordedEvents,
                     currentPlayer = initialPlayer,
+                    initialPlayer = initialPlayer,
                     currentWinningPlayer = initialPlayer,
                     referenceCardGroup = referenceCardGroup,
                     currentWinningCard = null,
@@ -365,8 +391,9 @@ data class EndedRound(
     override val roundNumber: NumericValue,
     override val players: List<PlayerId>,
     override val playerScoreBoard: Map<PlayerId, RoundScore>,
-    override val initialPlayer: PlayerId,
+    override val dealingPlayer: PlayerId,
     override val recordedEvents: List<RoundEvent> = emptyList(),
+    override val initialPlayer: PlayerId,
     override val currentPlayer: PlayerId,
     val triumphsPlayed: NumericValue,
     val currentWinningPlayer: PlayerId,
@@ -382,10 +409,11 @@ data class EndedRound(
                     roundNumber = roundNumber,
                     players = players,
                     playerScoreBoard = playerScoreBoard,
-                    initialPlayer = initialPlayer,
+                    dealingPlayer = dealingPlayer,
                     recordedEvents = recordedEvents,
+                    initialPlayer = initialPlayer,
                     currentPlayer = initialPlayer,
-                    currentWinningPlayer = initialPlayer,
+                    currentWinningPlayer = dealingPlayer,
                     referenceCardGroup = referenceCardGroup,
                     currentWinningCard = currentWinningCard,
                     triumphsPlayed = triumphsPlayed

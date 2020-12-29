@@ -116,7 +116,7 @@ data class OngoingGame (
 
         val round = Round.createNewRound(
             game = ongoingGame,
-            initialPlayer = ongoingGame.nextStartingPlayer()
+            dealingPlayer = ongoingGame.nextDealingPlayer()
         )
 
         return ongoingGame.copy(
@@ -124,7 +124,7 @@ data class OngoingGame (
         )
     }
 
-    private fun nextStartingPlayer(): PlayerId {
+    private fun nextDealingPlayer(): PlayerId {
         return players[(ongoingRound.value - 1) % players.size]
     }
 

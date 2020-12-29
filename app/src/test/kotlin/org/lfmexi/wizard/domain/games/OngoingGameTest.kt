@@ -46,7 +46,7 @@ internal class OngoingGameTest {
 
         val event = newOngoingGame.recordedEvents.first() as NextRoundCreatedForGameEvent
 
-        assertThat(event.round.initialPlayer).isEqualTo(PLAYER_ID_1)
+        assertThat(event.round.dealingPlayer).isEqualTo(PLAYER_ID_1)
     }
 
     @Test
@@ -73,7 +73,7 @@ internal class OngoingGameTest {
 
         val event = newOngoingGame.recordedEvents.first() as NextRoundCreatedForGameEvent
 
-        assertThat(event.round.initialPlayer).isEqualTo(PLAYER_ID_2)
+        assertThat(event.round.dealingPlayer).isEqualTo(PLAYER_ID_2)
     }
 
     @Test
