@@ -1,8 +1,8 @@
-package org.lfmexi.wizard.domain.games
+package org.lfmexi.wizard.domain.players
 
 import java.util.UUID
 
-data class GameId (
+data class PlayerId (
     val value: String
 ) {
     override fun toString(): String {
@@ -10,8 +10,8 @@ data class GameId (
     }
 
     companion object {
-        fun generate(): GameId {
-            return GameId(UUID.randomUUID().toString())
+        fun generate(): PlayerId {
+            return PlayerId(UUID.randomUUID().toString())
         }
     }
 }
