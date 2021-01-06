@@ -279,15 +279,15 @@ data class PlayingPhaseRound(
     private fun movePhaseForward(): Round {
         val nextPlayerId = nextPlayer()
 
-        return if (nextPlayerId == dealingPlayer) {
+        return if (nextPlayerId == initialPlayer) {
             // summarize and give the triumph to the winning player
-            updateForEndOfTriumph(nextPlayerId)
+            updateForEndOfTriumph()
         } else {
             updateForNextPlayer(nextPlayerId)
         }
     }
 
-    private fun updateForEndOfTriumph(nextPlayerId: PlayerId): Round {
+    private fun updateForEndOfTriumph(): Round {
         val updatedPlayerScoreBoard = playerScoreBoard.toMutableMap()
 
         updatedPlayerScoreBoard[currentWinningPlayer] = updatedPlayerScoreBoard[currentWinningPlayer]!!
@@ -299,13 +299,14 @@ data class PlayingPhaseRound(
 
         val updatedRound = this.copy(
             triumphsPlayed = this.triumphsPlayed + NumericValue.ONE,
-            playerScoreBoard = updatedPlayerScoreBoard
+            playerScoreBoard = updatedPlayerScoreBoard,
+            currentWinningCard = null
         )
 
         return if (updatedRound.triumphsPlayed >= updatedRound.roundNumber) {
             updatedRound.endRound()
         } else {
-            updatedRound.updateForNextPlayer(nextPlayerId)
+            updatedRound.updateForNextPlayer(currentWinningPlayer)
         }
     }
 
@@ -413,7 +414,7 @@ data class EndedRound(
                     recordedEvents = recordedEvents,
                     initialPlayer = initialPlayer,
                     currentPlayer = initialPlayer,
-                    currentWinningPlayer = dealingPlayer,
+                    currentWinningPlayer = currentWinningPlayer,
                     referenceCardGroup = referenceCardGroup,
                     currentWinningCard = currentWinningCard,
                     triumphsPlayed = triumphsPlayed
