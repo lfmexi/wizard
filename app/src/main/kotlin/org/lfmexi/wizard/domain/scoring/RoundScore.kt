@@ -6,11 +6,11 @@ data class RoundScore(
     val expected: NumericValue,
     val actual: NumericValue
 ) {
-    fun calculateScore(): NumericValue {
+    val totalScore: NumericValue get() {
         return if (expected == actual) {
             NumericValue(20) + expected * NumericValue(10)
         } else {
-            (expected absoluteDiff actual) * NumericValue(10)
+            (expected absoluteDiff actual) * NumericValue(-10)
         }
     }
 
