@@ -1,43 +1,36 @@
-package org.lfmexi.wizard.domain.players
+package org.lfmexi.wizard.domain.hands
 
 import org.lfmexi.wizard.domain.cards.Card
+import org.lfmexi.wizard.domain.players.PlayerId
 import org.lfmexi.wizard.domain.rounds.RoundId
-import java.util.UUID
 
 data class Hand (
     val id: HandId,
     val roundId: RoundId,
     val playerId: PlayerId,
-    val cards: List<Card>
+    val cards: List<Card>,
+    val recordedEvents: List<HandEvent> = emptyList()
 ) {
-    fun removeCard(card: Card): Hand {
-        return this.copy(
+    fun playCard(card: Card): Hand {
+        val hand = this.copy(
             cards = cards - card
+        )
+
+        return hand.copy(
+            recordedEvents = hand.recordedEvents + HandUpdatedEvent(hand)
         )
     }
 
     companion object {
         fun createHand(roundId: RoundId, playerId: PlayerId, cards: List<Card>): Hand {
-            return Hand(
+            val hand = Hand(
                 id = HandId.generate(),
                 roundId = roundId,
                 playerId = playerId,
                 cards = cards
             )
-        }
-    }
-}
 
-data class HandId(
-    val value: String
-) {
-    override fun toString(): String {
-        return value
-    }
-
-    companion object {
-        fun generate(): HandId {
-            return HandId(UUID.randomUUID().toString())
+            return hand.copy(recordedEvents = listOf(HandCreatedEvent(hand)))
         }
     }
 }

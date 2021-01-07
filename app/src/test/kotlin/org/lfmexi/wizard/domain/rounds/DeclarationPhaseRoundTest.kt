@@ -164,8 +164,9 @@ internal class DeclarationPhaseRoundTest {
                         PLAYER_ID_2 to RoundScore(NumericValue.ONE, NumericValue.ZERO),
                         PLAYER_ID_3 to RoundScore(NumericValue.ONE, NumericValue.ZERO)
                     ),
-                    referenceCardGroup = round.referenceCardGroup,
+                    triumphCardGroup = round.referenceCardGroup,
                     currentWinningCard = null,
+                    playingCardGroup = null,
                     currentWinningPlayer = round.initialPlayer,
                     triumphsPlayed = NumericValue.ZERO
                 )

@@ -58,9 +58,10 @@ object Fixtures {
         dealingPlayer = ONGOING_GAME.players.first(),
         initialPlayer = ONGOING_GAME.players[1],
         currentPlayer = ONGOING_GAME.players[1],
-        referenceCardGroup = null,
+        triumphCardGroup = null,
         currentWinningPlayer = ONGOING_GAME.players[1],
         currentWinningCard = null,
+        playingCardGroup = null,
         triumphsPlayed = NumericValue.ZERO
     )
 }

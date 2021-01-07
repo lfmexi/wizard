@@ -1,6 +1,6 @@
 package org.lfmexi.wizard.domain.rounds
 
-import org.lfmexi.wizard.domain.players.Hand
+import org.lfmexi.wizard.domain.hands.Hand
 
 sealed class RoundEvent {
     abstract val round: Round
@@ -21,11 +21,6 @@ data class DeclarationDoneEvent(
 
 data class PlayingPhaseReadyEvent(
     override val round: PlayingPhaseRound
-): RoundEvent()
-
-data class MoveInRoundRegisteredEvent(
-    override val round: PlayingPhaseRound,
-    val hand: Hand
 ): RoundEvent()
 
 data class RoundEndedEvent(

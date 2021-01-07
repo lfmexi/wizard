@@ -2,17 +2,13 @@ package org.lfmexi.wizard.domain.rounds
 
 import org.lfmexi.wizard.domain.cards.Card
 import org.lfmexi.wizard.domain.cards.CardGroup
-import org.lfmexi.wizard.domain.cards.ClassCard
 import org.lfmexi.wizard.domain.cards.Deck
 import org.lfmexi.wizard.domain.cards.FoolCard
-import org.lfmexi.wizard.domain.cards.WizardCard
-import org.lfmexi.wizard.domain.exception.CardNotInHandException
 import org.lfmexi.wizard.domain.exception.ExpectedScoreNotAcceptedException
-import org.lfmexi.wizard.domain.exception.IllegalMoveException
 import org.lfmexi.wizard.domain.exception.NotInTurnException
 import org.lfmexi.wizard.domain.games.GameId
 import org.lfmexi.wizard.domain.games.OngoingGame
-import org.lfmexi.wizard.domain.players.Hand
+import org.lfmexi.wizard.domain.hands.Hand
 import org.lfmexi.wizard.domain.players.PlayerId
 import org.lfmexi.wizard.domain.scoring.RoundScore
 import org.lfmexi.wizard.domain.values.NumericValue
@@ -233,25 +229,32 @@ data class PlayingPhaseRound(
     val triumphsPlayed: NumericValue,
     val currentWinningPlayer: PlayerId,
     val currentWinningCard: Card?,
-    val referenceCardGroup: CardGroup?
+    val triumphCardGroup: CardGroup?,
+    val playingCardGroup: CardGroup?
 ): PlayerTurnPhaseRound() {
-    fun playCard(hand: Hand, card: Card): Round {
-        validatePlayingPhase(hand, card)
-        return playCardFromHand(hand, card)
+    val hasPlayingCardGroup = playingCardGroup != null
+
+    fun registerPlayedCard(playerId: PlayerId, card: Card): Round {
+        return updateWithCard(playerId, card)
+            .movePhaseForward()
     }
 
-    private fun playCardFromHand(hand: Hand, card: Card): Round {
-        val newHand = hand.removeCard(card)
-        val updatedRound = updateWithMove(newHand, card)
-        return updatedRound.movePhaseForward()
+    private fun updateWithCard(playerId: PlayerId, card: Card): PlayingPhaseRound {
+        return updatePlayingCardGroup(card)
+            .updateWinningCardAndPlayer(playerId, card)
     }
 
-    private fun updateWithMove(hand: Hand, card: Card): PlayingPhaseRound {
-        val playerId = hand.playerId
-        val updatedRound = updateWinningCardAndPlayer(playerId, card)
+    private fun updatePlayingCardGroup(card: Card): PlayingPhaseRound {
+        if (card is FoolCard) {
+            return this
+        }
 
-        return updatedRound.copy(
-            recordedEvents = updatedRound.recordedEvents + MoveInRoundRegisteredEvent(updatedRound, hand)
+        if (playingCardGroup != null) {
+            return this
+        }
+
+        return this.copy(
+            playingCardGroup = card.group
         )
     }
 
@@ -268,9 +271,9 @@ data class PlayingPhaseRound(
         } else {
             this.copy(
                 currentWinningPlayer = playerId
-                    .takeIf { card.canBeat(currentWinningCard, referenceCardGroup) }
+                    .takeIf { card.canBeat(currentWinningCard, triumphCardGroup) }
                     ?: this.currentWinningPlayer,
-                currentWinningCard = card.takeIf { it.canBeat(currentWinningCard, referenceCardGroup) }
+                currentWinningCard = card.takeIf { it.canBeat(currentWinningCard, triumphCardGroup) }
                     ?: this.currentWinningCard
             )
         }
@@ -300,7 +303,8 @@ data class PlayingPhaseRound(
         val updatedRound = this.copy(
             triumphsPlayed = this.triumphsPlayed + NumericValue.ONE,
             playerScoreBoard = updatedPlayerScoreBoard,
-            currentWinningCard = null
+            currentWinningCard = null,
+            playingCardGroup = null
         )
 
         return if (updatedRound.triumphsPlayed >= updatedRound.roundNumber) {
@@ -324,43 +328,6 @@ data class PlayingPhaseRound(
         return EndedRound.from(this)
     }
 
-    private fun validatePlayingPhase(hand: Hand, card: Card) {
-        if (hand.playerId != currentPlayer) {
-            throw NotInTurnException(hand.playerId)
-        }
-
-        if (!hand.cards.contains(card)) {
-            throw CardNotInHandException(hand, card)
-        }
-
-        validatePlayedCardGroup(hand, card)
-    }
-
-    private fun validatePlayedCardGroup(hand: Hand, card: Card) {
-        if (currentWinningCard == null || currentWinningCard is WizardCard) {
-            return
-        }
-
-        if (card !is ClassCard) {
-            return
-        }
-
-        if (card.group == currentWinningCard.group) {
-            return
-        }
-        
-        val existingCard = hand.removeCard(card)
-            .cards
-            .firstOrNull { it.group == currentWinningCard.group }
-
-        if (existingCard != null) {
-            throw IllegalMoveException(
-                "The card $card cannot be played, the current " +
-                "card group that must be played is ${currentWinningCard.group}."
-            )
-        }
-    }
-
     internal companion object {
         fun from(round: DeclarationPhaseRound): PlayingPhaseRound {
             return with(round) {
@@ -375,8 +342,9 @@ data class PlayingPhaseRound(
                     currentPlayer = initialPlayer,
                     initialPlayer = initialPlayer,
                     currentWinningPlayer = initialPlayer,
-                    referenceCardGroup = referenceCardGroup,
+                    triumphCardGroup = referenceCardGroup,
                     currentWinningCard = null,
+                    playingCardGroup = null,
                     triumphsPlayed = NumericValue.ZERO
                 )
 
@@ -415,7 +383,7 @@ data class EndedRound(
                     initialPlayer = initialPlayer,
                     currentPlayer = initialPlayer,
                     currentWinningPlayer = currentWinningPlayer,
-                    referenceCardGroup = referenceCardGroup,
+                    referenceCardGroup = triumphCardGroup,
                     currentWinningCard = currentWinningCard,
                     triumphsPlayed = triumphsPlayed
                 )
