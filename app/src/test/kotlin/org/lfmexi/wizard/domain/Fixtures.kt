@@ -24,6 +24,7 @@ object Fixtures {
 
     val ONGOING_GAME = OngoingGame(
         id = GameId.generate(),
+        ongoingRound = NumericValue.ONE,
         players = listOf(PLAYER_ID_1, PLAYER_ID_2, PLAYER_ID_3)
     )
 

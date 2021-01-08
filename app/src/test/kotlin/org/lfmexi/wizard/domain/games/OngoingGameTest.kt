@@ -43,10 +43,7 @@ internal class OngoingGameTest {
         assertThat(newOngoingGame).isInstanceOf(OngoingGame::class.java)
         newOngoingGame as OngoingGame
         assertThat(newOngoingGame.ongoingRound).isEqualTo(NumericValue(1))
-
-        val event = newOngoingGame.recordedEvents.first() as NextRoundCreatedForGameEvent
-
-        assertThat(event.round.dealingPlayer).isEqualTo(PLAYER_ID_1)
+        assertThat(newOngoingGame.nextDealingPlayer()).isEqualTo(PLAYER_ID_1)
     }
 
     @Test
@@ -70,10 +67,7 @@ internal class OngoingGameTest {
 
         assertThat(newOngoingGame.ongoingRound).isEqualTo(NumericValue(2))
         assertThat(newOngoingGame).isInstanceOf(OngoingGame::class.java)
-
-        val event = newOngoingGame.recordedEvents.first() as NextRoundCreatedForGameEvent
-
-        assertThat(event.round.dealingPlayer).isEqualTo(PLAYER_ID_2)
+        assertThat(newOngoingGame.nextDealingPlayer()).isEqualTo(PLAYER_ID_2)
     }
 
     @Test

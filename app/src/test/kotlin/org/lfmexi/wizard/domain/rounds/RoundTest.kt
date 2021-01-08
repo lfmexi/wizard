@@ -12,8 +12,7 @@ internal class RoundTest {
         val initialPlayer = game.players.first()
 
         val round = Round.createNewRound(
-            game = game,
-            dealingPlayer = initialPlayer
+            game = game
         )
 
         assertThat(round).isInstanceOf(DealingPhaseRound::class.java)

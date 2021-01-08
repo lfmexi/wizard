@@ -24,12 +24,11 @@ sealed class Round {
 
     companion object {
         fun createNewRound(
-            game: OngoingGame,
-            dealingPlayer: PlayerId
+            game: OngoingGame
         ): Round {
             return DealingPhaseRound.createNewRound(
                 game = game,
-                dealingPlayer = dealingPlayer,
+                dealingPlayer = game.nextDealingPlayer(),
                 players = game.players,
                 deck = game.deck
             )

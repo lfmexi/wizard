@@ -4,7 +4,6 @@ import org.lfmexi.wizard.domain.cards.Deck
 import org.lfmexi.wizard.domain.exception.NotEnoughPlayersException
 import org.lfmexi.wizard.domain.exception.NotGameOwnerStartException
 import org.lfmexi.wizard.domain.players.PlayerId
-import org.lfmexi.wizard.domain.rounds.Round
 import org.lfmexi.wizard.domain.values.NumericValue
 
 sealed class Game : GameStateChanger {
@@ -69,7 +68,7 @@ data class LobbyGame(
         )
 
         return updatedLobbyGame.copy(
-            recordedEvents = updatedLobbyGame.recordedEvents + PlayerAddedEvent(updatedLobbyGame)
+            recordedEvents = updatedLobbyGame.recordedEvents + PlayerAddedToGameEvent(updatedLobbyGame)
         )
     }
 
@@ -114,17 +113,16 @@ data class OngoingGame (
             ongoingRound = ongoingRound + NumericValue(1)
         )
 
-        val round = Round.createNewRound(
-            game = ongoingGame,
-            dealingPlayer = ongoingGame.nextDealingPlayer()
-        )
-
         return ongoingGame.copy(
-            recordedEvents = ongoingGame.recordedEvents + NextRoundCreatedForGameEvent(ongoingGame, round)
+            recordedEvents = ongoingGame.recordedEvents + GameForNextRoundPreparedEvent(ongoingGame)
         )
     }
 
-    private fun nextDealingPlayer(): PlayerId {
+    fun nextDealingPlayer(): PlayerId {
+        require(ongoingRound >= NumericValue.ZERO) {
+            "The ongoing round should be already greater than ${NumericValue.ZERO}"
+        }
+
         return players[(ongoingRound.value - 1) % players.size]
     }
 

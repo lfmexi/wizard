@@ -38,7 +38,7 @@ internal class LobbyGameTest {
         assertThat(newLobbyGame.players).containsExactly(playerId, player2)
         assertThat(newLobbyGame.recordedEvents).isNotEmpty
         assertThat(newLobbyGame.recordedEvents.first()).isInstanceOf(GameCreatedEvent::class.java)
-        assertThat(newLobbyGame.recordedEvents[1]).isInstanceOf(PlayerAddedEvent::class.java)
+        assertThat(newLobbyGame.recordedEvents[1]).isInstanceOf(PlayerAddedToGameEvent::class.java)
     }
 
     @Test
@@ -57,7 +57,7 @@ internal class LobbyGameTest {
         assertThat(newLobbyGame.players).containsExactly(playerId, player2)
         assertThat(newLobbyGame.recordedEvents).isNotEmpty
         assertThat(newLobbyGame.recordedEvents.first()).isInstanceOf(GameCreatedEvent::class.java)
-        assertThat(newLobbyGame.recordedEvents[1]).isInstanceOf(PlayerAddedEvent::class.java)
+        assertThat(newLobbyGame.recordedEvents[1]).isInstanceOf(PlayerAddedToGameEvent::class.java)
     }
 
     @Test
@@ -87,7 +87,7 @@ internal class LobbyGameTest {
         ongoingGame as OngoingGame
 
         assertThat(ongoingGame.recordedEvents).hasSize(2)
-        assertThat(ongoingGame.recordedEvents.first()).isInstanceOf(PlayerAddedEvent::class.java)
+        assertThat(ongoingGame.recordedEvents.first()).isInstanceOf(PlayerAddedToGameEvent::class.java)
         assertThat(ongoingGame.recordedEvents[1]).isInstanceOf(GameStartedEvent::class.java)
         assertThat(ongoingGame.ongoingRound).isEqualTo(NumericValue.ZERO)
     }
