@@ -109,7 +109,9 @@ data class OngoingGame (
     }
 
     fun registerMove(move: Move): Game {
-        require(currentRound != null)
+        require(currentRound != null) {
+            "No current active round exists for game $id"
+        }
 
         val updatedRound = currentRound.registerMove(move)
         val updatedGame = this.copy(

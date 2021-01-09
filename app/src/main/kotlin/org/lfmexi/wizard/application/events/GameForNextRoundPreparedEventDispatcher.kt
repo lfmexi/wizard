@@ -1,4 +1,4 @@
-package org.lfmexi.wizard.application.games.events
+package org.lfmexi.wizard.application.events
 
 import mu.KotlinLogging
 import org.lfmexi.wizard.domain.games.NextRoundGeneratedForGameEvent

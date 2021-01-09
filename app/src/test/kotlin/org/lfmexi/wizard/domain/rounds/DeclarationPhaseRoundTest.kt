@@ -80,9 +80,6 @@ internal class DeclarationPhaseRoundTest {
                     )
                 )
             )
-
-        assertThat(newRound.recordedEvents).isNotEmpty
-        assertThat(newRound.recordedEvents.first()).isInstanceOf(DeclarationDoneEvent::class.java)
     }
 
     @Test
@@ -122,9 +119,6 @@ internal class DeclarationPhaseRoundTest {
                     )
                 )
             )
-
-        assertThat(newRound.recordedEvents).isNotEmpty
-        assertThat(newRound.recordedEvents.first()).isInstanceOf(DeclarationDoneEvent::class.java)
     }
 
     @Test

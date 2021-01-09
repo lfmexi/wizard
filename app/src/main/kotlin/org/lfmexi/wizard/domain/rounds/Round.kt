@@ -466,7 +466,7 @@ data class EndedRound(
     val referenceCardGroup: CardGroup?
 ) : PlayerTurnPhaseRound() {
     override fun registerMove(move: Move): Round {
-        TODO("Not yet implemented")
+        throw IllegalMoveException("Round already ended. Wait for next round to be created")
     }
 
     companion object {

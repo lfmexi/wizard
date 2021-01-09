@@ -19,10 +19,6 @@ data class DeclarationPhaseReadyEvent(
     override val round: DeclarationPhaseRound
 ): RoundEvent()
 
-data class DeclarationDoneEvent(
-    override val round: DeclarationPhaseRound
-): RoundEvent()
-
 data class PlayingPhaseReadyEvent(
     override val round: PlayingPhaseRound
 ): RoundEvent()
