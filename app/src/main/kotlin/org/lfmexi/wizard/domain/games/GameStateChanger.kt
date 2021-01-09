@@ -1,7 +1,6 @@
 package org.lfmexi.wizard.domain.games
 
 import org.lfmexi.wizard.domain.players.PlayerId
-import org.lfmexi.wizard.domain.rounds.Round
 
 internal interface GameStateChanger {
     fun addPlayer(playerId: PlayerId): Game {

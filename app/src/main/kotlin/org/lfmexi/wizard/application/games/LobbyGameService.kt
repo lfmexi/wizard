@@ -1,7 +1,5 @@
 package org.lfmexi.wizard.application.games
 
-import org.lfmexi.wizard.application.support.EventPublisher
-import org.lfmexi.wizard.domain.events.DomainEvent
 import org.lfmexi.wizard.domain.games.Game
 import org.lfmexi.wizard.domain.games.GameId
 import org.lfmexi.wizard.domain.players.PlayerId
@@ -9,8 +7,7 @@ import reactor.core.publisher.Mono
 
 class LobbyGameService internal constructor(
     private val gameFetcherService: GameFetcherService,
-    private val gameRepository: GameRepository,
-    private val gameEventPublisher: EventPublisher<DomainEvent>
+    private val gamePersistenceService: GamePersistenceService
 )  {
     /**
      * Adds a player to the given game
@@ -23,7 +20,9 @@ class LobbyGameService internal constructor(
             .map {
                 it.addPlayer(playerId)
             }
-            .persistAndPublishEvents()
+            .flatMap {
+                gamePersistenceService.persistAndPublishEvents(it)
+            }
     }
 
     /**
@@ -37,16 +36,8 @@ class LobbyGameService internal constructor(
             .map {
                 it.startGame(playerId)
             }
-            .persistAndPublishEvents()
-    }
-
-    private fun Mono<Game>.persistAndPublishEvents(): Mono<Game> {
-        return this
             .flatMap {
-                gameRepository.save(it)
-            }
-            .doOnSuccess {
-                gameEventPublisher.publishEvents(it.recordedEvents)
+                gamePersistenceService.persistAndPublishEvents(it)
             }
     }
 }

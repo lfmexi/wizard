@@ -7,8 +7,7 @@ import org.lfmexi.wizard.domain.players.PlayerId
 import reactor.core.publisher.Mono
 
 class GameCreationService internal constructor(
-    private val gameRepository: GameRepository,
-    private val gameEventPublisher: EventPublisher<DomainEvent>
+    private val gamePersistenceService: GamePersistenceService
 )  {
     /**
      * Creates a new [Game]. It will start as a Lobby Game, waiting for more players to join
@@ -16,9 +15,6 @@ class GameCreationService internal constructor(
      */
     fun createNewGame(owner: PlayerId): Mono<Game> {
         val game = Game.createNewGame(owner)
-        return gameRepository.save(game)
-            .doOnSuccess {
-                gameEventPublisher.publishEvents(it.recordedEvents)
-            }
+        return gamePersistenceService.persistAndPublishEvents(game)
     }
 }

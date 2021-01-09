@@ -11,35 +11,25 @@ import reactor.core.publisher.Mono
 
 class OngoingGameService internal constructor(
     private val gameFetcherService: GameFetcherService,
-    private val gameRepository: GameRepository,
-    private val domainEventPublisher: EventPublisher<DomainEvent>
+    private val gamePersistenceService: GamePersistenceService
 ){
-    fun nextRound(gameId: GameId): Mono<Unit> {
+    fun nextRound(gameId: GameId): Mono<Game> {
         return getOngoingGame(gameId)
             .map {
                 it.nextRound()
             }
             .flatMap {
-                persistAndPublishEvents(it)
-                    .map { }
+                gamePersistenceService.persistAndPublishEvents(it)
             }
     }
 
-    fun registerMove(gameId: GameId, move: Move): Mono<Unit> {
+    fun registerMove(gameId: GameId, move: Move): Mono<Game> {
         return getOngoingGame(gameId)
             .map {
                 it.registerMove(move)
             }
             .flatMap {
-                persistAndPublishEvents(it)
-                    .map {  }
-            }
-    }
-
-    private fun persistAndPublishEvents(game: Game): Mono<Game> {
-        return gameRepository.save(game)
-            .doOnSuccess {
-                domainEventPublisher.publishEvents(game.recordedEvents)
+                gamePersistenceService.persistAndPublishEvents(it)
             }
     }
 
