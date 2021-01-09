@@ -89,7 +89,7 @@ internal class LobbyGameTest {
         assertThat(ongoingGame.recordedEvents).hasSize(2)
         assertThat(ongoingGame.recordedEvents.first()).isInstanceOf(PlayerAddedToGameEvent::class.java)
         assertThat(ongoingGame.recordedEvents[1]).isInstanceOf(GameStartedEvent::class.java)
-        assertThat(ongoingGame.ongoingRound).isEqualTo(NumericValue.ZERO)
+        assertThat(ongoingGame.ongoingRoundNumber).isEqualTo(NumericValue.ZERO)
     }
 
     @Test
@@ -117,7 +117,7 @@ internal class LobbyGameTest {
 
         assertThat(ongoingGame.recordedEvents).hasSize(1)
         assertThat(ongoingGame.recordedEvents.first()).isInstanceOf(GameStartedEvent::class.java)
-        assertThat(ongoingGame.ongoingRound).isEqualTo(NumericValue.ZERO)
+        assertThat(ongoingGame.ongoingRoundNumber).isEqualTo(NumericValue.ZERO)
     }
 
     @Test

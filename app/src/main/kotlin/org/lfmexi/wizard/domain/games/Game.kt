@@ -1,15 +1,18 @@
 package org.lfmexi.wizard.domain.games
 
-import org.lfmexi.wizard.domain.cards.Deck
+import org.lfmexi.wizard.domain.events.DomainEvent
 import org.lfmexi.wizard.domain.exception.NotEnoughPlayersException
 import org.lfmexi.wizard.domain.exception.NotGameOwnerStartException
+import org.lfmexi.wizard.domain.moves.Move
 import org.lfmexi.wizard.domain.players.PlayerId
+import org.lfmexi.wizard.domain.rounds.Round
 import org.lfmexi.wizard.domain.values.NumericValue
 
 sealed class Game : GameStateChanger {
     abstract val id: GameId
     abstract val players: List<PlayerId>
-    abstract val recordedEvents: List<GameEvent>
+    abstract val currentRound: Round?
+    abstract val recordedEvents: List<DomainEvent>
 
     override fun endGame(): Game {
         return EndedGame.createFrom(this)
@@ -25,9 +28,11 @@ sealed class Game : GameStateChanger {
 data class LobbyGame(
     override val id: GameId,
     override val players: List<PlayerId>,
-    override val recordedEvents: List<GameEvent> = emptyList(),
+    override val recordedEvents: List<DomainEvent> = emptyList(),
     val owner: PlayerId
 ) : Game() {
+    override val currentRound: Round? = null
+
     override fun addPlayer(playerId: PlayerId): Game {
         require(players.size < 6) {
             "Cannot add more players to the game"
@@ -90,40 +95,55 @@ data class LobbyGame(
 data class OngoingGame (
     override val id: GameId,
     override val players: List<PlayerId>,
-    override val recordedEvents: List<GameEvent> = emptyList(),
-    val ongoingRound: NumericValue = NumericValue.ZERO
+    override val currentRound: Round? = null,
+    override val recordedEvents: List<DomainEvent> = emptyList(),
+    val ongoingRoundNumber: NumericValue = NumericValue.ZERO
 ) : Game() {
-    val deck = Deck.initialize()
-
-    private val numberOfRounds = NumericValue(deck.size.value / players.size)
+    private val numberOfRounds = NumericValue(60 / players.size)
 
     init {
-        require(ongoingRound <= numberOfRounds) {
-            "Ongoing rounds ($ongoingRound) for the game $id is bigger " +
+        require(ongoingRoundNumber <= numberOfRounds) {
+            "Ongoing rounds ($ongoingRoundNumber) for the game $id is bigger " +
                 "than the expected number of rounds ($numberOfRounds)"
         }
     }
 
+    fun registerMove(move: Move): Game {
+        require(currentRound != null)
+
+        val updatedRound = currentRound.registerMove(move)
+        val updatedGame = this.copy(
+            currentRound = updatedRound
+        )
+
+        return updatedGame.copy(
+            recordedEvents = updatedGame.recordedEvents + MoveRegisteredEvent(updatedGame) + updatedRound.recordedEvents
+        )
+    }
+
     override fun nextRound(): Game {
-        if (ongoingRound >= numberOfRounds) {
+        if (ongoingRoundNumber >= numberOfRounds) {
             return endGame()
         }
 
         val ongoingGame = this.copy(
-            ongoingRound = ongoingRound + NumericValue(1)
+            ongoingRoundNumber = ongoingRoundNumber + NumericValue(1)
         )
 
+        val round = Round.createNewRound(ongoingGame, ongoingGame.nextDealingPlayer())
+
         return ongoingGame.copy(
-            recordedEvents = ongoingGame.recordedEvents + GameForNextRoundPreparedEvent(ongoingGame)
+            recordedEvents = ongoingGame.recordedEvents + NextRoundGeneratedForGameEvent(ongoingGame),
+            currentRound = round
         )
     }
 
-    fun nextDealingPlayer(): PlayerId {
-        require(ongoingRound >= NumericValue.ZERO) {
+    private fun nextDealingPlayer(): PlayerId {
+        require(ongoingRoundNumber >= NumericValue.ZERO) {
             "The ongoing round should be already greater than ${NumericValue.ZERO}"
         }
 
-        return players[(ongoingRound.value - 1) % players.size]
+        return players[(ongoingRoundNumber.value - 1) % players.size]
     }
 
     companion object {
@@ -146,7 +166,8 @@ data class OngoingGame (
 data class EndedGame(
     override val id: GameId,
     override val players: List<PlayerId>,
-    override val recordedEvents: List<GameEvent> = emptyList(),
+    override val recordedEvents: List<DomainEvent> = emptyList(),
+    override val currentRound: Round? = null,
     val ongoingRound: NumericValue
 ) : Game() {
     companion object {
@@ -154,7 +175,7 @@ data class EndedGame(
             return with(game) {
                 val ongoingRound = when (this) {
                     is LobbyGame -> NumericValue.ZERO
-                    is OngoingGame -> ongoingRound
+                    is OngoingGame -> ongoingRoundNumber
                     is EndedGame -> ongoingRound
                 }
 

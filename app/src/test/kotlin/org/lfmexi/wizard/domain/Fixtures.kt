@@ -24,15 +24,14 @@ object Fixtures {
 
     val ONGOING_GAME = OngoingGame(
         id = GameId.generate(),
-        ongoingRound = NumericValue.ONE,
+        ongoingRoundNumber = NumericValue.ONE,
         players = listOf(PLAYER_ID_1, PLAYER_ID_2, PLAYER_ID_3)
     )
 
     val DEALING_PHASE_ROUND = DealingPhaseRound(
         id = RoundId.generate(),
         gameId = ONGOING_GAME.id,
-        roundNumber = ONGOING_GAME.ongoingRound,
-        deck = ONGOING_GAME.deck,
+        roundNumber = ONGOING_GAME.ongoingRoundNumber,
         dealingPlayer = ONGOING_GAME.players.first(),
         players = ONGOING_GAME.players,
         playerScoreBoard = ONGOING_GAME.players.map { it to RoundScore.ZERO_SCORE }.toMap(),
@@ -41,19 +40,20 @@ object Fixtures {
     val DECLARATION_PHASE_ROUND = DeclarationPhaseRound(
         id = RoundId.generate(),
         gameId = ONGOING_GAME.id,
-        roundNumber = ONGOING_GAME.ongoingRound,
+        roundNumber = ONGOING_GAME.ongoingRoundNumber,
         players = ONGOING_GAME.players,
         playerScoreBoard = ONGOING_GAME.players.map { it to RoundScore.ZERO_SCORE }.toMap(),
         dealingPlayer = ONGOING_GAME.players.first(),
         initialPlayer = ONGOING_GAME.players[1],
         currentPlayer = ONGOING_GAME.players[1],
-        referenceCardGroup = null
+        referenceCardGroup = null,
+        hands = emptyList()
     )
 
     val PLAYING_PHASE_ROUND = PlayingPhaseRound(
         id = RoundId.generate(),
         gameId = ONGOING_GAME.id,
-        roundNumber = ONGOING_GAME.ongoingRound,
+        roundNumber = ONGOING_GAME.ongoingRoundNumber,
         players = ONGOING_GAME.players,
         playerScoreBoard = ONGOING_GAME.players.map { it to RoundScore.ZERO_SCORE }.toMap(),
         dealingPlayer = ONGOING_GAME.players.first(),
@@ -63,6 +63,7 @@ object Fixtures {
         currentWinningPlayer = ONGOING_GAME.players[1],
         currentWinningCard = null,
         playingCardGroup = null,
-        triumphsPlayed = NumericValue.ZERO
+        triumphsPlayed = NumericValue.ZERO,
+        hands = emptyList()
     )
 }

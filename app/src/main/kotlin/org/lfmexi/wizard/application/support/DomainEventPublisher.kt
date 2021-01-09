@@ -1,15 +1,14 @@
-package org.lfmexi.wizard.application.rounds
+package org.lfmexi.wizard.application.support
 
-import org.lfmexi.wizard.application.support.EventPublisher
-import org.lfmexi.wizard.domain.rounds.RoundEvent
+import org.lfmexi.wizard.domain.DomainEvent
 import org.springframework.context.ApplicationEventPublisher
 import org.springframework.stereotype.Component
 
 @Component
-internal class RoundEventPublisher(
+internal class DomainEventPublisher(
     private val applicationEventPublisher: ApplicationEventPublisher
-) : EventPublisher<RoundEvent> {
-    override fun publishEvents(events: Collection<RoundEvent>) {
+) : EventPublisher<DomainEvent> {
+    override fun publishEvents(events: Collection<DomainEvent>) {
         events.forEach {
             applicationEventPublisher.publishEvent(it)
         }

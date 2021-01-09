@@ -6,6 +6,7 @@ import org.lfmexi.wizard.domain.Fixtures.LOBBY_GAME
 import org.lfmexi.wizard.domain.Fixtures.PLAYER_ID_1
 import org.lfmexi.wizard.domain.Fixtures.PLAYER_ID_2
 import org.lfmexi.wizard.domain.Fixtures.PLAYER_ID_3
+import org.lfmexi.wizard.domain.rounds.DealingPhaseRound
 import org.lfmexi.wizard.domain.values.NumericValue
 
 internal class OngoingGameTest {
@@ -24,7 +25,7 @@ internal class OngoingGameTest {
 
         assertThat(ongoingGame.recordedEvents).hasSize(1)
         assertThat(ongoingGame.recordedEvents.first()).isInstanceOf(GameStartedEvent::class.java)
-        assertThat(ongoingGame.ongoingRound).isEqualTo(NumericValue.ZERO)
+        assertThat(ongoingGame.ongoingRoundNumber).isEqualTo(NumericValue.ZERO)
     }
 
     @Test
@@ -42,8 +43,10 @@ internal class OngoingGameTest {
         // then
         assertThat(newOngoingGame).isInstanceOf(OngoingGame::class.java)
         newOngoingGame as OngoingGame
-        assertThat(newOngoingGame.ongoingRound).isEqualTo(NumericValue(1))
-        assertThat(newOngoingGame.nextDealingPlayer()).isEqualTo(PLAYER_ID_1)
+        assertThat(newOngoingGame.ongoingRoundNumber).isEqualTo(NumericValue(1))
+
+        assertThat(newOngoingGame.currentRound).isInstanceOf(DealingPhaseRound::class.java)
+        assertThat(newOngoingGame.currentRound?.dealingPlayer).isEqualTo(PLAYER_ID_1)
     }
 
     @Test
@@ -57,7 +60,7 @@ internal class OngoingGameTest {
         val ongoingGame = (OngoingGame.createFrom(game) as OngoingGame)
             .copy(
                 recordedEvents = emptyList(),
-                ongoingRound = NumericValue(1)
+                ongoingRoundNumber = NumericValue(1)
             )
 
         val newOngoingGame = ongoingGame.nextRound()
@@ -65,9 +68,12 @@ internal class OngoingGameTest {
         assertThat(newOngoingGame).isInstanceOf(OngoingGame::class.java)
         newOngoingGame as OngoingGame
 
-        assertThat(newOngoingGame.ongoingRound).isEqualTo(NumericValue(2))
+        assertThat(newOngoingGame.ongoingRoundNumber).isEqualTo(NumericValue(2))
         assertThat(newOngoingGame).isInstanceOf(OngoingGame::class.java)
-        assertThat(newOngoingGame.nextDealingPlayer()).isEqualTo(PLAYER_ID_2)
+
+
+        assertThat(newOngoingGame.currentRound).isInstanceOf(DealingPhaseRound::class.java)
+        assertThat(newOngoingGame.currentRound?.dealingPlayer).isEqualTo(PLAYER_ID_2)
     }
 
     @Test
@@ -81,7 +87,7 @@ internal class OngoingGameTest {
         val ongoingGame = (OngoingGame.createFrom(game) as OngoingGame)
             .copy(
                 recordedEvents = emptyList(),
-                ongoingRound = NumericValue(20)
+                ongoingRoundNumber = NumericValue(20)
             )
 
         val newOngoingGame = ongoingGame.nextRound()
@@ -90,5 +96,7 @@ internal class OngoingGameTest {
         assertThat(newOngoingGame.recordedEvents.first()).isInstanceOf(GameEndedEvent::class.java)
         newOngoingGame as EndedGame
         assertThat(newOngoingGame.ongoingRound).isEqualTo(NumericValue(20))
+
+        assertThat(newOngoingGame.currentRound).isNull()
     }
 }

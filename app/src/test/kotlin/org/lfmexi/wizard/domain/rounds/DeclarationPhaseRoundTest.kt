@@ -168,7 +168,8 @@ internal class DeclarationPhaseRoundTest {
                     currentWinningCard = null,
                     playingCardGroup = null,
                     currentWinningPlayer = round.initialPlayer,
-                    triumphsPlayed = NumericValue.ZERO
+                    triumphsPlayed = NumericValue.ZERO,
+                    hands = emptyList()
                 )
             )
 

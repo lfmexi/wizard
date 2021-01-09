@@ -1,6 +1,13 @@
 package org.lfmexi.wizard.domain.games
 
-sealed class GameEvent {
+import org.lfmexi.wizard.domain.events.DomainEvent
+import org.lfmexi.wizard.domain.events.DomainEventId
+import java.time.Instant
+
+sealed class GameEvent : DomainEvent(
+    id = DomainEventId.generate(),
+    timestamp = Instant.now()
+) {
     abstract val game: Game
 }
 
@@ -16,7 +23,11 @@ data class GameStartedEvent (
     override val game: Game
 ) : GameEvent()
 
-data class GameForNextRoundPreparedEvent(
+data class NextRoundGeneratedForGameEvent(
+    override val game: Game
+): GameEvent()
+
+data class MoveRegisteredEvent(
     override val game: Game
 ): GameEvent()
 

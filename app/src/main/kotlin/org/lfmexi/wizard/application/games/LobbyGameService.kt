@@ -1,8 +1,8 @@
 package org.lfmexi.wizard.application.games
 
 import org.lfmexi.wizard.application.support.EventPublisher
+import org.lfmexi.wizard.domain.events.DomainEvent
 import org.lfmexi.wizard.domain.games.Game
-import org.lfmexi.wizard.domain.games.GameEvent
 import org.lfmexi.wizard.domain.games.GameId
 import org.lfmexi.wizard.domain.players.PlayerId
 import reactor.core.publisher.Mono
@@ -10,7 +10,7 @@ import reactor.core.publisher.Mono
 class LobbyGameService internal constructor(
     private val gameFetcherService: GameFetcherService,
     private val gameRepository: GameRepository,
-    private val gameEventPublisher: EventPublisher<GameEvent>
+    private val gameEventPublisher: EventPublisher<DomainEvent>
 )  {
     /**
      * Adds a player to the given game

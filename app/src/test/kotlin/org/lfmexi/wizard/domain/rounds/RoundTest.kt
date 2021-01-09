@@ -12,7 +12,8 @@ internal class RoundTest {
         val initialPlayer = game.players.first()
 
         val round = Round.createNewRound(
-            game = game
+            game = game,
+            nextDealingPlayerId = initialPlayer
         )
 
         assertThat(round).isInstanceOf(DealingPhaseRound::class.java)
@@ -23,8 +24,7 @@ internal class RoundTest {
                 DealingPhaseRound(
                     id = RoundId.generate(),
                     gameId = game.id,
-                    roundNumber = game.ongoingRound,
-                    deck = game.deck,
+                    roundNumber = game.ongoingRoundNumber,
                     dealingPlayer = initialPlayer,
                     players = game.players,
                     playerScoreBoard = game.players.map { it to RoundScore.ZERO_SCORE }.toMap(),

@@ -2,85 +2,89 @@ package org.lfmexi.wizard.domain.moves
 
 import org.lfmexi.wizard.domain.cards.Card
 import org.lfmexi.wizard.domain.cards.ClassCard
+import org.lfmexi.wizard.domain.cards.Deck
 import org.lfmexi.wizard.domain.exception.CardNotInHandException
+import org.lfmexi.wizard.domain.exception.ExpectedScoreNotAcceptedException
 import org.lfmexi.wizard.domain.exception.IllegalMoveException
 import org.lfmexi.wizard.domain.exception.NotInTurnException
 import org.lfmexi.wizard.domain.hands.Hand
+import org.lfmexi.wizard.domain.players.PlayerId
+import org.lfmexi.wizard.domain.rounds.DealingPhaseRound
+import org.lfmexi.wizard.domain.rounds.DeclarationPhaseRound
 import org.lfmexi.wizard.domain.rounds.PlayingPhaseRound
 import org.lfmexi.wizard.domain.rounds.Round
+import org.lfmexi.wizard.domain.values.NumericValue
 
-data class Move(
-    val id: MoveId,
-    val hand: Hand,
-    val card: Card,
-    val round: PlayingPhaseRound
-) {
-    init {
-        validate()
+sealed class Move {
+    abstract val id: MoveId
+    abstract val playerId: PlayerId
+}
+
+data class DealCardsMove(
+    override val id: MoveId,
+    override val playerId: PlayerId,
+): Move() {
+    private val deck: Deck = Deck.initialize()
+
+    internal fun deal(round: Round): Pair<List<Hand>, Card?> {
+        val (deck, hands) = dealHands(round)
+        return hands to deck.drawTopCard()
     }
 
-    fun playCardFromHand(): Hand {
-        return hand.playCard(card)
-    }
+    private fun dealHands(round: Round): Pair<Deck, List<Hand>> {
+        val cardsWithDeck: List<Pair<Deck, List<Card>>> =
+            generateSequence({ deck.drawCards(round.roundNumber) }) {
+                (deck, _) -> deck.drawCards(round.roundNumber)
+            }
+                .take(round.players.size)
+                .toList()
 
-    fun registerMoveOnRound(): Round {
-        return round.registerPlayedCard(hand.playerId, card)
-    }
+        val (lastDeck, _) = cardsWithDeck.last()
+        val cardsForHands = cardsWithDeck.map { (_, cards) -> cards }
 
-    private fun validate() {
-        validatePlayer()
-        validateCardFromHand()
-        validatePlayedCardGroup()
-    }
-
-    private fun validatePlayer() {
-        if (hand.playerId != round.currentPlayer) {
-            throw NotInTurnException(hand.playerId)
-        }
-    }
-
-    private fun validateCardFromHand() {
-        if (!hand.cards.contains(card)) {
-            throw CardNotInHandException(hand, card)
-        }
-    }
-
-    private fun validatePlayedCardGroup() {
-        if (card !is ClassCard) {
-            return
-        }
-
-        if (!round.hasPlayingCardGroup) {
-            return
-        }
-
-        if (card.group == round.playingCardGroup) {
-            return
-        }
-
-        val existingCard = hand.playCard(card)
-            .cards
-            .firstOrNull { it.group == round.playingCardGroup }
-
-        if (existingCard != null) {
-            throw IllegalMoveException(
-                "The card $card cannot be played, the current " +
-                    "card group that must be played is ${round.playingCardGroup}."
-            )
+        return lastDeck to cardsForHands.mapIndexed { index, cards ->
+            Hand.createHand(round.id, round.players[index], cards)
         }
     }
 
     companion object {
-        fun createMove(
-            hand: Hand,
-            card: Card,
-            round: PlayingPhaseRound
-        ): Move {
-            return Move(
+        fun create(dealer: PlayerId): DealCardsMove {
+            return DealCardsMove(MoveId.generate(), dealer)
+        }
+    }
+}
+
+data class DeclarationMove(
+    override val id: MoveId,
+    override val playerId: PlayerId,
+    val triumphsDeclared: NumericValue
+): Move() {
+    companion object {
+        fun create(playerId: PlayerId, triumphsDeclared: NumericValue): DeclarationMove {
+            return DeclarationMove(
                 id = MoveId.generate(),
-                hand = hand,
+                playerId = playerId,
+                triumphsDeclared = triumphsDeclared
+            )
+        }
+    }
+}
+
+data class PlayCardMove(
+    override val id: MoveId,
+    override val playerId: PlayerId,
+    val card: Card
+): Move() {
+
+    companion object {
+        fun create(
+            card: Card,
+            playerId: PlayerId
+        ): PlayCardMove {
+            return PlayCardMove(
+                id = MoveId.generate(),
                 card = card,
-                round = round
+                playerId = playerId
             )
         }
     }
