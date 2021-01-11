@@ -1,8 +1,6 @@
 package org.lfmexi.wizard.application.games
 
 import org.lfmexi.wizard.application.exceptions.OngoingGameNotFoundException
-import org.lfmexi.wizard.application.support.EventPublisher
-import org.lfmexi.wizard.domain.events.DomainEvent
 import org.lfmexi.wizard.domain.games.Game
 import org.lfmexi.wizard.domain.games.GameId
 import org.lfmexi.wizard.domain.games.OngoingGame

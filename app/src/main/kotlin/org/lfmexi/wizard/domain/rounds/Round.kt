@@ -461,8 +461,6 @@ data class EndedRound(
     override val moves: List<Move> = emptyList(),
     override val hands: List<Hand>,
     val triumphsPlayed: NumericValue,
-    val currentWinningPlayer: PlayerId,
-    val currentWinningCard: Card?,
     val referenceCardGroup: CardGroup?
 ) : PlayerTurnPhaseRound() {
     override fun registerMove(move: Move): Round {
@@ -482,9 +480,7 @@ data class EndedRound(
                     recordedEvents = recordedEvents,
                     initialPlayer = initialPlayer,
                     currentPlayer = initialPlayer,
-                    currentWinningPlayer = currentWinningPlayer,
                     referenceCardGroup = triumphCardGroup,
-                    currentWinningCard = currentWinningCard,
                     hands = hands,
                     moves = moves,
                     triumphsPlayed = triumphsPlayed

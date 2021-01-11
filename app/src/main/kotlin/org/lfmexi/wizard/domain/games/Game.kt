@@ -12,6 +12,7 @@ sealed class Game : GameStateChanger {
     abstract val id: GameId
     abstract val players: List<PlayerId>
     abstract val currentRound: Round?
+    abstract val endedRounds: List<Round>
     abstract val recordedEvents: List<DomainEvent>
 
     override fun endGame(): Game {
@@ -29,6 +30,7 @@ data class LobbyGame(
     override val id: GameId,
     override val players: List<PlayerId>,
     override val recordedEvents: List<DomainEvent> = emptyList(),
+    override val endedRounds: List<Round> = emptyList(),
     val owner: PlayerId
 ) : Game() {
     override val currentRound: Round? = null
@@ -96,6 +98,7 @@ data class OngoingGame (
     override val id: GameId,
     override val players: List<PlayerId>,
     override val currentRound: Round? = null,
+    override val endedRounds: List<Round> = emptyList(),
     override val recordedEvents: List<DomainEvent> = emptyList(),
     val ongoingRoundNumber: NumericValue = NumericValue.ZERO
 ) : Game() {
@@ -124,6 +127,11 @@ data class OngoingGame (
     }
 
     override fun nextRound(): Game {
+        return this.addCurrentRoundToEndedRounds()
+            .updateWithNextRound()
+    }
+
+    private fun updateWithNextRound(): Game {
         if (ongoingRoundNumber >= numberOfRounds) {
             return endGame()
         }
@@ -138,6 +146,16 @@ data class OngoingGame (
             recordedEvents = ongoingGame.recordedEvents + NextRoundGeneratedForGameEvent(ongoingGame),
             currentRound = round
         )
+    }
+
+    private fun addCurrentRoundToEndedRounds(): OngoingGame {
+        return if (currentRound != null) {
+            this.copy(
+                endedRounds = endedRounds + currentRound
+            )
+        } else {
+            this
+        }
     }
 
     private fun nextDealingPlayer(): PlayerId {
@@ -169,9 +187,11 @@ data class EndedGame(
     override val id: GameId,
     override val players: List<PlayerId>,
     override val recordedEvents: List<DomainEvent> = emptyList(),
-    override val currentRound: Round? = null,
+    override val endedRounds: List<Round>,
     val ongoingRound: NumericValue
 ) : Game() {
+    override val currentRound: Round? = null
+
     companion object {
         fun createFrom(game: Game): EndedGame {
             return with(game) {
@@ -185,7 +205,8 @@ data class EndedGame(
                     id = id,
                     players = players,
                     ongoingRound = ongoingRound,
-                    recordedEvents = recordedEvents
+                    recordedEvents = recordedEvents,
+                    endedRounds = endedRounds
                 )
 
                 endedGame.copy(

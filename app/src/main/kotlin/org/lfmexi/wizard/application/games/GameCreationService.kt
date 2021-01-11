@@ -1,7 +1,5 @@
 package org.lfmexi.wizard.application.games
 
-import org.lfmexi.wizard.application.support.EventPublisher
-import org.lfmexi.wizard.domain.events.DomainEvent
 import org.lfmexi.wizard.domain.games.Game
 import org.lfmexi.wizard.domain.players.PlayerId
 import reactor.core.publisher.Mono
@@ -14,7 +12,6 @@ class GameCreationService internal constructor(
      * @param owner, the [PlayerId] of the owner of the game
      */
     fun createNewGame(owner: PlayerId): Mono<Game> {
-        val game = Game.createNewGame(owner)
-        return gamePersistenceService.persistAndPublishEvents(game)
+        return gamePersistenceService.persistAndPublishEvents(Game.createNewGame(owner))
     }
 }
