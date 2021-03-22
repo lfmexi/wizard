@@ -1,4 +1,4 @@
-package org.lfmexi.wizard.domain.rounds
+package org.lfmexi.wizard.domain.games.rounds
 
 import org.lfmexi.wizard.domain.events.DomainEvent
 import org.lfmexi.wizard.domain.events.DomainEventId

@@ -4,7 +4,7 @@ import org.lfmexi.wizard.application.exceptions.OngoingGameNotFoundException
 import org.lfmexi.wizard.domain.games.Game
 import org.lfmexi.wizard.domain.games.GameId
 import org.lfmexi.wizard.domain.games.OngoingGame
-import org.lfmexi.wizard.domain.moves.Move
+import org.lfmexi.wizard.domain.players.moves.PlayerMove
 import reactor.core.publisher.Mono
 
 class OngoingGameService internal constructor(
@@ -21,7 +21,7 @@ class OngoingGameService internal constructor(
             }
     }
 
-    fun registerMove(gameId: GameId, move: Move): Mono<Game> {
+    fun registerMove(gameId: GameId, move: PlayerMove): Mono<Game> {
         return getOngoingGame(gameId)
             .map {
                 it.registerMove(move)

@@ -4,10 +4,10 @@ import org.lfmexi.wizard.domain.games.GameId
 import org.lfmexi.wizard.domain.games.LobbyGame
 import org.lfmexi.wizard.domain.games.OngoingGame
 import org.lfmexi.wizard.domain.players.PlayerId
-import org.lfmexi.wizard.domain.rounds.DealingPhaseRound
-import org.lfmexi.wizard.domain.rounds.DeclarationPhaseRound
-import org.lfmexi.wizard.domain.rounds.PlayingPhaseRound
-import org.lfmexi.wizard.domain.rounds.RoundId
+import org.lfmexi.wizard.domain.games.rounds.DealingPhaseRound
+import org.lfmexi.wizard.domain.games.rounds.DeclarationPhaseRound
+import org.lfmexi.wizard.domain.games.rounds.PlayingPhaseRound
+import org.lfmexi.wizard.domain.games.rounds.RoundId
 import org.lfmexi.wizard.domain.scoring.RoundScore
 import org.lfmexi.wizard.domain.values.NumericValue
 

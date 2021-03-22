@@ -1,19 +1,5 @@
-package org.lfmexi.wizard.domain.moves
+package org.lfmexi.wizard.domain.players.moves
 
-import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.assertThrows
-import org.lfmexi.wizard.domain.Fixtures.PLAYER_ID_1
-import org.lfmexi.wizard.domain.Fixtures.PLAYER_ID_2
-import org.lfmexi.wizard.domain.Fixtures.PLAYER_ID_3
-import org.lfmexi.wizard.domain.Fixtures.PLAYING_PHASE_ROUND
-import org.lfmexi.wizard.domain.cards.CardGroup
-import org.lfmexi.wizard.domain.cards.ClassCard
-import org.lfmexi.wizard.domain.exception.CardNotInHandException
-import org.lfmexi.wizard.domain.exception.IllegalMoveException
-import org.lfmexi.wizard.domain.exception.NotInTurnException
-import org.lfmexi.wizard.domain.hands.Hand
-import org.lfmexi.wizard.domain.hands.HandId
-import org.lfmexi.wizard.domain.values.NumericValue
 //
 //internal class PlayCardMoveTest {
 //    @Test

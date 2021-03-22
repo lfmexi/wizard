@@ -2,7 +2,7 @@ package org.lfmexi.wizard.application.events
 
 import mu.KotlinLogging
 import org.lfmexi.wizard.application.games.OngoingGameService
-import org.lfmexi.wizard.domain.rounds.RoundEndedEvent
+import org.lfmexi.wizard.domain.games.rounds.RoundEndedEvent
 import org.springframework.context.event.EventListener
 import org.springframework.stereotype.Component
 import reactor.core.scheduler.Schedulers

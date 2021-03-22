@@ -1,4 +1,4 @@
-package org.lfmexi.wizard.domain.rounds
+package org.lfmexi.wizard.domain.games.rounds
 
 import org.lfmexi.wizard.domain.cards.Card
 import org.lfmexi.wizard.domain.cards.CardGroup
@@ -12,10 +12,10 @@ import org.lfmexi.wizard.domain.exception.NotInTurnException
 import org.lfmexi.wizard.domain.games.GameId
 import org.lfmexi.wizard.domain.games.OngoingGame
 import org.lfmexi.wizard.domain.hands.Hand
-import org.lfmexi.wizard.domain.moves.DealCardsMove
-import org.lfmexi.wizard.domain.moves.DeclarationMove
-import org.lfmexi.wizard.domain.moves.Move
-import org.lfmexi.wizard.domain.moves.PlayCardMove
+import org.lfmexi.wizard.domain.players.moves.DealCardsPlayerMove
+import org.lfmexi.wizard.domain.players.moves.DeclarationPlayerMove
+import org.lfmexi.wizard.domain.players.moves.PlayerMove
+import org.lfmexi.wizard.domain.players.moves.PlayCardPlayerMove
 import org.lfmexi.wizard.domain.players.PlayerId
 import org.lfmexi.wizard.domain.scoring.RoundScore
 import org.lfmexi.wizard.domain.values.NumericValue
@@ -27,10 +27,10 @@ sealed class Round {
     abstract val players: List<PlayerId>
     abstract val playerScoreBoard: Map<PlayerId, RoundScore>
     abstract val dealingPlayer: PlayerId
-    abstract val moves: List<Move>
+    abstract val moves: List<PlayerMove>
     abstract val recordedEvents: List<DomainEvent>
 
-    abstract fun registerMove(move: Move): Round
+    abstract fun registerMove(move: PlayerMove): Round
 
     companion object {
         fun createNewRound(
@@ -52,13 +52,13 @@ data class DealingPhaseRound(
     override val players: List<PlayerId>,
     override val playerScoreBoard: Map<PlayerId, RoundScore>,
     override val dealingPlayer: PlayerId,
-    override val moves: List<Move> = emptyList(),
+    override val moves: List<PlayerMove> = emptyList(),
     override val recordedEvents: List<RoundEvent> = emptyList()
 ) : Round() {
 
-    override fun registerMove(move: Move): Round {
+    override fun registerMove(move: PlayerMove): Round {
         return when (move) {
-            is DealCardsMove -> {
+            is DealCardsPlayerMove -> {
                 validate(move)
                 val (hands, activeCard) = move.deal(this)
                 this.copy(
@@ -69,7 +69,7 @@ data class DealingPhaseRound(
         }
     }
 
-    private fun validate(move: Move) {
+    private fun validate(move: PlayerMove) {
         with(move) {
             if (playerId != dealingPlayer) {
                 throw NotInTurnException(playerId)
@@ -147,13 +147,13 @@ data class DeclarationPhaseRound(
     override val recordedEvents: List<DomainEvent> = emptyList(),
     override val initialPlayer: PlayerId,
     override val currentPlayer: PlayerId,
-    override val moves: List<Move> = emptyList(),
+    override val moves: List<PlayerMove> = emptyList(),
     override val hands: List<Hand>,
     val referenceCardGroup: CardGroup?
 ): PlayerTurnPhaseRound() {
-    override fun registerMove(move: Move): Round {
+    override fun registerMove(move: PlayerMove): Round {
         return when(move) {
-            is DeclarationMove -> {
+            is DeclarationPlayerMove -> {
                 validateDeclaration(move)
                 this.copy(
                     moves = moves + move
@@ -187,7 +187,7 @@ data class DeclarationPhaseRound(
         }
     }
 
-    private fun validateDeclaration(move: DeclarationMove) {
+    private fun validateDeclaration(move: DeclarationPlayerMove) {
         with(move) {
             if (playerId != currentPlayer) {
                 throw NotInTurnException(playerId)
@@ -248,7 +248,7 @@ data class PlayingPhaseRound(
     override val recordedEvents: List<DomainEvent> = emptyList(),
     override val initialPlayer: PlayerId,
     override val currentPlayer: PlayerId,
-    override val moves: List<Move> = emptyList(),
+    override val moves: List<PlayerMove> = emptyList(),
     override val hands: List<Hand>,
     val triumphsPlayed: NumericValue,
     val currentWinningPlayer: PlayerId,
@@ -258,9 +258,9 @@ data class PlayingPhaseRound(
 ): PlayerTurnPhaseRound() {
     private val hasPlayingCardGroup = playingCardGroup != null
 
-    override fun registerMove(move: Move): Round {
+    override fun registerMove(move: PlayerMove): Round {
         return when(move) {
-            is PlayCardMove -> {
+            is PlayCardPlayerMove -> {
                 validate(move)
                 this.copy(
                     moves = moves + move
@@ -375,26 +375,26 @@ data class PlayingPhaseRound(
         return EndedRound.from(this)
     }
 
-    private fun validate(move: PlayCardMove) {
+    private fun validate(move: PlayCardPlayerMove) {
         validatePlayer(move)
         validateCardFromHand(move)
         validatePlayedCardGroup(move)
     }
 
-    private fun validatePlayer(move: PlayCardMove) {
+    private fun validatePlayer(move: PlayCardPlayerMove) {
         if (move.playerId != currentPlayer) {
             throw NotInTurnException(move.playerId)
         }
     }
 
-    private fun validateCardFromHand(move: PlayCardMove) {
+    private fun validateCardFromHand(move: PlayCardPlayerMove) {
         val hand = hands.first { it.playerId == move.playerId }
         if (!hand.cards.contains(move.card)) {
             throw CardNotInHandException(hand, move.card)
         }
     }
 
-    private fun validatePlayedCardGroup(move: PlayCardMove) {
+    private fun validatePlayedCardGroup(move: PlayCardPlayerMove) {
         if (move.card !is ClassCard) {
             return
         }
@@ -458,12 +458,12 @@ data class EndedRound(
     override val recordedEvents: List<DomainEvent> = emptyList(),
     override val initialPlayer: PlayerId,
     override val currentPlayer: PlayerId,
-    override val moves: List<Move> = emptyList(),
+    override val moves: List<PlayerMove> = emptyList(),
     override val hands: List<Hand>,
     val triumphsPlayed: NumericValue,
     val referenceCardGroup: CardGroup?
 ) : PlayerTurnPhaseRound() {
-    override fun registerMove(move: Move): Round {
+    override fun registerMove(move: PlayerMove): Round {
         throw IllegalMoveException("Round already ended. Wait for next round to be created")
     }
 

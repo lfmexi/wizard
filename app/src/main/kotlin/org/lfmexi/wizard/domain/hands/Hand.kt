@@ -2,7 +2,7 @@ package org.lfmexi.wizard.domain.hands
 
 import org.lfmexi.wizard.domain.cards.Card
 import org.lfmexi.wizard.domain.players.PlayerId
-import org.lfmexi.wizard.domain.rounds.RoundId
+import org.lfmexi.wizard.domain.games.rounds.RoundId
 
 data class Hand (
     val id: HandId,

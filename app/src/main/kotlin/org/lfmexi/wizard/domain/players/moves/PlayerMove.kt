@@ -1,29 +1,21 @@
-package org.lfmexi.wizard.domain.moves
+package org.lfmexi.wizard.domain.players.moves
 
 import org.lfmexi.wizard.domain.cards.Card
-import org.lfmexi.wizard.domain.cards.ClassCard
 import org.lfmexi.wizard.domain.cards.Deck
-import org.lfmexi.wizard.domain.exception.CardNotInHandException
-import org.lfmexi.wizard.domain.exception.ExpectedScoreNotAcceptedException
-import org.lfmexi.wizard.domain.exception.IllegalMoveException
-import org.lfmexi.wizard.domain.exception.NotInTurnException
 import org.lfmexi.wizard.domain.hands.Hand
 import org.lfmexi.wizard.domain.players.PlayerId
-import org.lfmexi.wizard.domain.rounds.DealingPhaseRound
-import org.lfmexi.wizard.domain.rounds.DeclarationPhaseRound
-import org.lfmexi.wizard.domain.rounds.PlayingPhaseRound
-import org.lfmexi.wizard.domain.rounds.Round
+import org.lfmexi.wizard.domain.games.rounds.Round
 import org.lfmexi.wizard.domain.values.NumericValue
 
-sealed class Move {
+sealed class PlayerMove {
     abstract val id: MoveId
     abstract val playerId: PlayerId
 }
 
-data class DealCardsMove(
+data class DealCardsPlayerMove(
     override val id: MoveId,
     override val playerId: PlayerId,
-): Move() {
+): PlayerMove() {
     private val deck: Deck = Deck.initialize()
 
     internal fun deal(round: Round): Pair<List<Hand>, Card?> {
@@ -48,20 +40,20 @@ data class DealCardsMove(
     }
 
     companion object {
-        fun create(dealer: PlayerId): DealCardsMove {
-            return DealCardsMove(MoveId.generate(), dealer)
+        fun create(dealer: PlayerId): DealCardsPlayerMove {
+            return DealCardsPlayerMove(MoveId.generate(), dealer)
         }
     }
 }
 
-data class DeclarationMove(
+data class DeclarationPlayerMove(
     override val id: MoveId,
     override val playerId: PlayerId,
     val triumphsDeclared: NumericValue
-): Move() {
+): PlayerMove() {
     companion object {
-        fun create(playerId: PlayerId, triumphsDeclared: NumericValue): DeclarationMove {
-            return DeclarationMove(
+        fun create(playerId: PlayerId, triumphsDeclared: NumericValue): DeclarationPlayerMove {
+            return DeclarationPlayerMove(
                 id = MoveId.generate(),
                 playerId = playerId,
                 triumphsDeclared = triumphsDeclared
@@ -70,18 +62,18 @@ data class DeclarationMove(
     }
 }
 
-data class PlayCardMove(
+data class PlayCardPlayerMove(
     override val id: MoveId,
     override val playerId: PlayerId,
     val card: Card
-): Move() {
+): PlayerMove() {
 
     companion object {
         fun create(
             card: Card,
             playerId: PlayerId
-        ): PlayCardMove {
-            return PlayCardMove(
+        ): PlayCardPlayerMove {
+            return PlayCardPlayerMove(
                 id = MoveId.generate(),
                 card = card,
                 playerId = playerId

@@ -1,4 +1,4 @@
-package org.lfmexi.wizard.domain.moves
+package org.lfmexi.wizard.domain.players.moves
 
 import java.util.UUID
 

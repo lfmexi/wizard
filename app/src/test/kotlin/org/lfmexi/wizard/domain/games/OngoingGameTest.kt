@@ -6,7 +6,7 @@ import org.lfmexi.wizard.domain.Fixtures.LOBBY_GAME
 import org.lfmexi.wizard.domain.Fixtures.PLAYER_ID_1
 import org.lfmexi.wizard.domain.Fixtures.PLAYER_ID_2
 import org.lfmexi.wizard.domain.Fixtures.PLAYER_ID_3
-import org.lfmexi.wizard.domain.rounds.DealingPhaseRound
+import org.lfmexi.wizard.domain.games.rounds.DealingPhaseRound
 import org.lfmexi.wizard.domain.values.NumericValue
 
 internal class OngoingGameTest {

@@ -1,17 +1,4 @@
-package org.lfmexi.wizard.domain.rounds
-
-import org.assertj.core.api.Assertions.assertThat
-import org.junit.jupiter.api.Test
-import org.lfmexi.wizard.domain.Fixtures.PLAYER_ID_1
-import org.lfmexi.wizard.domain.Fixtures.PLAYER_ID_2
-import org.lfmexi.wizard.domain.Fixtures.PLAYER_ID_3
-import org.lfmexi.wizard.domain.Fixtures.PLAYING_PHASE_ROUND
-import org.lfmexi.wizard.domain.cards.CardGroup
-import org.lfmexi.wizard.domain.cards.CardGroup.RED
-import org.lfmexi.wizard.domain.cards.ClassCard
-import org.lfmexi.wizard.domain.cards.FoolCard
-import org.lfmexi.wizard.domain.scoring.RoundScore
-import org.lfmexi.wizard.domain.values.NumericValue
+package org.lfmexi.wizard.domain.games.rounds
 
 internal class PlayingPhaseRoundTest {
 //    @Test

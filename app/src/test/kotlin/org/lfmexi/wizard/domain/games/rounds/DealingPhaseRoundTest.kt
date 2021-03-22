@@ -1,4 +1,4 @@
-package org.lfmexi.wizard.domain.rounds
+package org.lfmexi.wizard.domain.games.rounds
 
 import org.junit.jupiter.params.provider.Arguments
 import org.lfmexi.wizard.domain.Fixtures.DEALING_PHASE_ROUND

@@ -3,9 +3,9 @@ package org.lfmexi.wizard.domain.games
 import org.lfmexi.wizard.domain.events.DomainEvent
 import org.lfmexi.wizard.domain.exception.NotEnoughPlayersException
 import org.lfmexi.wizard.domain.exception.NotGameOwnerStartException
-import org.lfmexi.wizard.domain.moves.Move
+import org.lfmexi.wizard.domain.players.moves.PlayerMove
 import org.lfmexi.wizard.domain.players.PlayerId
-import org.lfmexi.wizard.domain.rounds.Round
+import org.lfmexi.wizard.domain.games.rounds.Round
 import org.lfmexi.wizard.domain.values.NumericValue
 
 sealed class Game : GameStateChanger {
@@ -111,7 +111,7 @@ data class OngoingGame (
         }
     }
 
-    fun registerMove(move: Move): Game {
+    fun registerMove(move: PlayerMove): Game {
         require(currentRound != null) {
             "No current active round exists for game $id"
         }

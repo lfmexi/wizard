@@ -1,4 +1,4 @@
-package org.lfmexi.wizard.domain.rounds
+package org.lfmexi.wizard.domain.games.rounds
 
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
