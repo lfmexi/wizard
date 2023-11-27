@@ -7,7 +7,9 @@ A small sample project that applies some Domain Driven Design principles.
 ## Overall Architecture
 
 I've tried to identify some bounded contexts (sorry if I've done that poorly), therefore, I am trying to have a sort of 
-modular monolith that follows internally the hexagonal architecture. So far, the main bounded contexts that have been
+modular monolith that follows internally the hexagonal architecture. 
+
+So far, the main bounded contexts that have been
 identified are:
 
 - Games: contains the whole logic of playing a wizard game.
